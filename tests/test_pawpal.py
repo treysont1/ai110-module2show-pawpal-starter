@@ -19,7 +19,7 @@ def sample_task(owner_with_pet):
 
 @pytest.fixture
 def owner_with_pet():
-    owner = Owner(name="Alex", id="owner_001")
+    owner = Owner(name="Alex")
     pet = Pet(name="Buddy", species="Dog", age=3, owner=owner)
     owner.add_pet(pet)
     return owner, pet

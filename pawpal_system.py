@@ -1,24 +1,29 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
+_SORT_KEY = lambda t: (PRIORITY_ORDER.get(t.priority.lower(), 1), t.deadline, t.name)
 
 
 class Owner:
-    def __init__(self, name: str, id: str):
+    def __init__(self, name: str):
         self.name = name
-        self.id = id
         self.pets: list["Pet"] = []
         self.availability_windows: list[str] = []
+        self._pet_lookup: dict[str, "Pet"] = {}
 
     def add_pet(self, pet: "Pet") -> None:
         """Add a pet to this owner and set the pet's owner reference."""
+        if pet in self.pets:
+            return
         pet.owner = self
         self.pets.append(pet)
+        self._pet_lookup[pet.name] = pet
 
     def remove_pet(self, pet: "Pet") -> None:
         """Remove a pet from this owner's list if present."""
         if pet in self.pets:
             self.pets.remove(pet)
+            self._pet_lookup.pop(pet.name, None)
 
     def get_pets(self) -> list["Pet"]:
         """Return all pets belonging to this owner."""
@@ -49,13 +54,23 @@ class Pet:
         today = datetime.now()
         needs = []
 
-        for i in range(self.walks_per_day):
-            hour = 8 + i * (8 // max(self.walks_per_day, 1))
+        WALK_DURATION = {"dog": 30.0, "cat": 0.0, "other": 15.0}
+        walk_duration = WALK_DURATION.get(self.species, 15.0)
+
+        # Puppies/kittens (under 1 year) need more frequent walks/feeds
+        walks = self.walks_per_day
+        if self.age < 1:
+            walks = max(walks, 4)
+
+        for i in range(walks):
+            if walk_duration == 0.0:
+                continue
+            hour = 8 + i * (12 // walks)
             needs.append(Task(
                 name="Walk",
                 type="walk",
                 description=f"Walk {self.name}",
-                duration=30.0,
+                duration=walk_duration,
                 priority="medium",
                 deadline=today.replace(hour=hour, minute=0, second=0, microsecond=0),
                 associated_pet=self,
@@ -88,6 +103,7 @@ class Task:
         deadline: datetime,
         associated_pet: Pet,
         is_recurring: bool = False,
+        frequency: str = "daily",
     ):
         self.name = name
         self.type = type
@@ -97,6 +113,7 @@ class Task:
         self.deadline = deadline
         self.associated_pet = associated_pet
         self.is_recurring = is_recurring
+        self.frequency = frequency  # "daily" or "weekly"
         self.completed = False
 
     def mark_complete(self) -> None:
@@ -116,10 +133,28 @@ class Scheduler:
 
     def _all_tasks(self) -> list[Task]:
         """Retrieve all tasks across every pet the owner has."""
-        return [task for pet in self.owner.get_pets() for task in pet.tasks]
+        return self.owner.get_all_tasks()
+
+    def has_conflict(self, task: Task) -> bool:
+        """Return True if task's time window overlaps any existing incomplete task."""
+        return any(
+            not e.completed
+            and task.deadline - timedelta(minutes=task.duration) < e.deadline
+            and task.deadline > e.deadline - timedelta(minutes=e.duration)
+            for e in self._all_tasks()
+            if e is not task
+        )
 
     def add_task(self, task: Task) -> None:
-        """Route a task into its associated pet's task list."""
+        """Route a task into its associated pet's task list, ignoring duplicates.
+
+        Prints a warning if the task's time window overlaps an existing task.
+        """
+        pet_tasks = task.associated_pet.tasks
+        if task in pet_tasks:
+            return
+        if self.has_conflict(task):
+            print(f"WARNING: '{task.name}' ({task.associated_pet.name}) overlaps an existing task.")
         task.associated_pet.add_task(task)
 
     def remove_task(self, task: Task) -> None:
@@ -150,18 +185,50 @@ class Scheduler:
         ]
 
     def generate_schedule(self) -> list[Task]:
-        """Return all pending tasks sorted by priority then deadline."""
+        """Return all pending tasks sorted by priority, deadline, then name."""
         pending = [t for t in self._all_tasks() if not t.completed]
-        return sorted(
-            pending,
-            key=lambda t: (PRIORITY_ORDER.get(t.priority.lower(), 1), t.deadline),
-        )
+        return sorted(pending, key=_SORT_KEY)
 
     def get_next_task(self) -> Task | None:
         """Return the highest-priority pending task, or None if none exist."""
-        schedule = self.generate_schedule()
-        return schedule[0] if schedule else None
+        pending = [t for t in self._all_tasks() if not t.completed]
+        return min(pending, key=_SORT_KEY, default=None)
 
     def filter_by_pet(self, pet: Pet) -> list[Task]:
         """Return all tasks associated with a specific pet."""
         return list(pet.tasks)
+
+    def filter_by_pet_name(self, name: str) -> list[Task]:
+        """Return all tasks for the pet with the given name, sorted by priority then deadline."""
+        pet = self.owner._pet_lookup.get(name)
+        if not pet:
+            return []
+        return sorted(pet.tasks, key=_SORT_KEY)
+
+    def filter_by_completion(self, completed: bool) -> list[Task]:
+        """Return all tasks matching the given completion status, sorted by priority then deadline."""
+        tasks = [t for t in self._all_tasks() if t.completed == completed]
+        return sorted(tasks, key=_SORT_KEY)
+
+    def complete_task(self, task: Task) -> Task | None:
+        """Mark a task complete and, if recurring, schedule the next occurrence.
+
+        Returns the newly created next-occurrence Task, or None if not recurring.
+        """
+        task.mark_complete()
+        if not task.is_recurring:
+            return None
+        delta = timedelta(weeks=1) if task.frequency == "weekly" else timedelta(days=1)
+        next_task = Task(
+            name=task.name,
+            type=task.type,
+            description=task.description,
+            duration=task.duration,
+            priority=task.priority,
+            deadline=task.deadline + delta,
+            associated_pet=task.associated_pet,
+            is_recurring=True,
+            frequency=task.frequency,
+        )
+        self.add_task(next_task)
+        return next_task

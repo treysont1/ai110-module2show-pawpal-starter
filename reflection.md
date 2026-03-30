@@ -30,12 +30,13 @@ Yes, the design changed during implementation, as I originally wanted to divide 
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
-
+The scheduler considers the priority of a task, the deadline, and its name. The priority matters the most, as things like taking a pet to the vet would be more important than bathing it. Next, if things have the same level of priority, they'll go by deadline. Lastly, the name is a tiebreaker and just sorts the tasks alphabetically.
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+The scheduler scans every single task to check for time conflicts.
 - Why is that tradeoff reasonable for this scenario?
-
+This is reasonable because this program is not for production, and iterating through tasks won't take long.
 ---
 
 ## 3. AI Collaboration
@@ -43,13 +44,14 @@ Yes, the design changed during implementation, as I originally wanted to divide 
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+I used AI tools to scaffold the project and implement class features and functions.
 - What kinds of prompts or questions were most helpful?
-
+Prompts like "design a class based on this UML" were most helpful.
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
-
+One moment where I didn't accept an AI suggestion was when it suggested adding an ID to each user. I rejected this because it would add unnecessary complexity, as this project is for one user only.
 ---
 
 ## 4. Testing and Verification

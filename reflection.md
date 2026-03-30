@@ -9,15 +9,18 @@ User should be able to feed their pet, walk their pet, and buy toys.
 There should be a pet owner class with actions like feeding pet, walking pet, and other actions. It will also have attributes like 
 which pets the owner has, and personal identifiers if necessary. 
 Pet class will belong to an owner, with attributes like species, name,  or other important pet details. Methods for pets will include actions like walking, etc.
-Each task should have a description and name, as well as a method like to perform it or to mark it as complete.
-The scheduler should have methods to add tasks and order them by deadline.
+Each task should have a description and name, as well as a method like to perform it or to mark it as complete. It is associated with pets.
+The scheduler should have methods to add tasks and order them by deadline. It belongs to the owner
 
 - What classes did you include, and what responsibilities did you assign to each?
+I implemented all of these tasks, but instead assigned responsibilities like scheduling a walk to the scheduler class. The pet class doesn't have many methods other than just getting its daily needs. The tasks class has a name, description, and various other attributes like deadlines, with only a few methods like marking as complete or performing them. The scheduler handles a majority of the task related functions.
+
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+Yes, the design changed during implementation, as I originally wanted to divide the the methods more evenly, but after receiving feedback, realized that it would be most efficient and make the most sense if I made it so that the majority of the tasks would be allocated to the scheduler class.
 
 ---
 

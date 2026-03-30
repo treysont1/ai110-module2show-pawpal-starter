@@ -83,6 +83,11 @@ else:
             deadline=deadline,
             associated_pet=selected_pet,
         )
+        if scheduler.has_conflict(task):
+            st.warning(
+                f"'{task_title}' overlaps an existing task for {selected_pet_name}. "
+                "It was added but check the schedule for conflicts."
+            )
         scheduler.add_task(task)
         st.success(f"Task '{task_title}' added for {selected_pet_name}.")
 
@@ -92,17 +97,24 @@ st.divider()
 st.subheader("Today's Schedule")
 
 if st.button("Generate Schedule"):
-    today_tasks = scheduler.get_today_tasks()
+    today = datetime.now().date()
+    today_tasks = [t for t in scheduler.generate_schedule() if t.deadline.date() == today]
 
     if not today_tasks:
         st.info("No tasks scheduled for today.")
     else:
-        sorted_tasks = sorted(
-            today_tasks,
-            key=lambda t: ({"high": 0, "medium": 1, "low": 2}.get(t.priority.lower(), 1), t.deadline, t.name),
-        )
-        for task in sorted_tasks:
-            st.markdown(
-                f"**{task.deadline.strftime('%I:%M %p')} — {task.name}** ({task.associated_pet.name})  \n"
-                f"Priority: `{task.priority}` | Duration: {task.duration} min"
-            )
+        priority_badge = {"high": "🔴 High", "medium": "🟡 Medium", "low": "🟢 Low"}
+
+        rows = [
+            {
+                "Time": t.deadline.strftime("%I:%M %p"),
+                "Task": t.name,
+                "Pet": t.associated_pet.name,
+                "Priority": priority_badge.get(t.priority.lower(), t.priority),
+                "Duration (min)": int(t.duration),
+            }
+            for t in today_tasks
+        ]
+
+        st.dataframe(rows, use_container_width=True, hide_index=True)
+        st.caption(f"{len(today_tasks)} task(s) — sorted chronologically, priority breaks ties.")

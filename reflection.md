@@ -59,13 +59,15 @@ One moment where I didn't accept an AI suggestion was when it suggested adding a
 **a. What you tested**
 
 - What behaviors did you test?
+I tested the schedule conflicter logic, as well as general schedule making.
 - Why were these tests important?
-
+These tests were important because they are part of the main functionality of the app, and without a functioning schedule, the app is useless.
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+I am very confident that the scheduler works correctly, though, I am a bit worried about whether one may confuse deadlines with the time to start a task vs finishing it.
 - What edge cases would you test next if you had more time?
-
+I would test what happens if you try to assign a task without having a pet, or what happens to pet if user is deleted.
 ---
 
 ## 5. Reflection
@@ -73,11 +75,14 @@ One moment where I didn't accept an AI suggestion was when it suggested adding a
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+I am most satisfied with the scheduluer part of the project.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+I would make this project look more user friendly, and implement more features like reminders.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+One thing I learned about designing systems and working with AI is that AI can be a powerful tool, but if you allow it to operate without checking in on it and making sure you know what it's doing, you may become lost in your own project, and be unable to solve issues that you didn't even know existed.

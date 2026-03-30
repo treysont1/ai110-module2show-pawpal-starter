@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
-_SORT_KEY = lambda t: (PRIORITY_ORDER.get(t.priority.lower(), 1), t.deadline, t.name)
+_SORT_KEY = lambda t: (t.deadline, PRIORITY_ORDER.get(t.priority.lower(), 1), t.name)
 
 
 class Owner:

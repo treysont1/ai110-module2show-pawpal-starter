@@ -43,6 +43,12 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Testing PawPal+
+
+### Pytest
+Run python -m pytest 
+These tests focus on conflict detection, sorting by chronological order, recurrence in tasks, and edge cases like unknown priority strings, or pets with no tasks.
+
 ### Suggested workflow
 
 1. Read the scenario carefully and identify requirements and edge cases.

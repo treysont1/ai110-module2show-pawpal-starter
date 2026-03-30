@@ -30,7 +30,7 @@ Yes, the design changed during implementation, as I originally wanted to divide 
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
-The scheduler considers the priority of a task, the deadline, and its name. The priority matters the most, as things like taking a pet to the vet would be more important than bathing it. Next, if things have the same level of priority, they'll go by deadline. Lastly, the name is a tiebreaker and just sorts the tasks alphabetically.
+The scheduler considers the deadline for a task, its priority, and its name. First, the program prioritizes deadlines, like feeding a pet on time, then goes by priority, so feeding a pet would be more important than walking for example. Lastly, the name is a tiebreaker and just sorts the tasks alphabetically.
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.

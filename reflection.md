@@ -1,10 +1,17 @@
 # PawPal+ Project Reflection
 
 ## 1. System Design
+User should be able to feed their pet, walk their pet, and buy toys.
 
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+There should be a pet owner class with actions like feeding pet, walking pet, and other actions. It will also have attributes like 
+which pets the owner has, and personal identifiers if necessary. 
+Pet class will belong to an owner, with attributes like species, name,  or other important pet details. Methods for pets will include actions like walking, etc.
+Each task should have a description and name, as well as a method like to perform it or to mark it as complete.
+The scheduler should have methods to add tasks and order them by deadline.
+
 - What classes did you include, and what responsibilities did you assign to each?
 
 **b. Design changes**
